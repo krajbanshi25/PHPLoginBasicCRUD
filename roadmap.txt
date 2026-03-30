@@ -1,0 +1,379 @@
+PROJECT ROADMAP
+Simple explanation of how this PHP login system works
+
+1. Main Idea of This Project
+
+This project is a simple user system made with PHP, MySQLi, sessions, and a database.
+
+It allows a user to:
+- register a new account
+- log in
+- update their own details
+- view all users
+- edit other users from the user list
+- delete users
+- log out
+
+The database connection is created in:
+- db.php
+
+This file is important because other PHP files include it whenever they need to read or write user data in the database.
+
+
+2. Starting Page of the Project
+
+The project usually starts from:
+- index.php
+
+This is the login page.
+
+What index.php does:
+- starts the session
+- checks if the user is already logged in
+- if already logged in, it sends the user directly to welcome.php
+- if not logged in, it shows the login form
+- it also shows messages like successful registration or logout message
+
+The login form in index.php sends data to:
+- check.php
+
+
+3. What Happens When a User Clicks Login
+
+Step 1:
+The user opens index.php and sees the login form.
+
+Step 2:
+The user enters username and password and clicks the Login button.
+
+Step 3:
+The form sends the request to:
+- check.php
+
+Step 4:
+check.php does the real login processing:
+- starts the session
+- includes db.php to connect to the database
+- reads the username and password from the form
+- searches the users table for that username
+- checks the password using password_verify()
+
+Step 5:
+If login is successful:
+- session values are created
+- $_SESSION["user_id"] is stored
+- $_SESSION["username"] is stored
+- the user is redirected to welcome.php
+
+Step 6:
+If login fails:
+- the user is sent back to index.php
+- an error message is passed in the URL
+
+Simple login flow:
+index.php -> check.php -> welcome.php
+
+
+4. What Happens When a User Clicks Register
+
+Step 1:
+On index.php, there is a Register link.
+
+Step 2:
+When the user clicks that link, the user goes to:
+- register.php
+
+Step 3:
+register.php shows the registration form.
+
+Step 4:
+When the user fills the form and clicks Register, the form submits to:
+- register.php
+
+This means the same file both shows the form and processes the registration.
+
+Step 5:
+register.php handles the registration process:
+- starts the session
+- includes db.php
+- reads the username and password
+- hashes the password using password_hash()
+- checks if the username already exists
+- if the username is new, inserts the new user into the users table
+
+Step 6:
+After successful registration:
+- the user is redirected to index.php
+- a success message is shown saying registration was successful
+- then the user can log in from the login page
+
+If registration fails:
+- register.php stays open
+- it shows an error message on the same page
+
+Simple register flow:
+index.php -> register.php -> index.php
+
+
+5. What Happens After Login
+
+After a successful login, the user reaches:
+- welcome.php
+
+welcome.php is the main page after login.
+
+What welcome.php does:
+- starts the session
+- checks whether the user is logged in
+- if not logged in, redirects to index.php
+- shows the logged-in username
+- shows important navigation buttons
+
+Buttons on welcome.php:
+- Update My Details -> profile.php
+- View All Users -> users.php
+- Logout -> logout.php
+
+So welcome.php acts like the main menu of the system.
+
+
+6. What Happens When a User Performs Edit/Update
+
+There are two update paths in this project.
+
+Path A: User updates their own details
+Path B: User edits a user from the user list
+
+
+7. Edit/Update Path A: Update My Own Details
+
+Step 1:
+The user logs in and reaches welcome.php.
+
+Step 2:
+The user clicks:
+- Update My Details
+
+Step 3:
+The user goes to:
+- profile.php
+
+Step 4:
+profile.php does two jobs:
+- it shows the form with the current user's details
+- it also processes the update when the form is submitted
+
+Step 5:
+profile.php:
+- starts the session
+- includes db.php
+- checks whether the user is logged in
+- finds the current user's id from the session
+- loads the current data from the database
+
+Step 6:
+When the user submits the form, profile.php:
+- reads the new username
+- reads the new password
+- checks whether the new username is already used by another user
+- updates the database
+- if password field is empty, it keeps the old password
+- if a new password is entered, it hashes the new password and saves it
+
+Step 7:
+After successful update:
+- session username is updated
+- the user is redirected to welcome.php
+- a success message is shown there
+
+Simple personal update flow:
+welcome.php -> profile.php -> welcome.php
+
+
+8. Edit/Update Path B: Edit a User from the User List
+
+Step 1:
+From welcome.php, the user clicks:
+- View All Users
+
+Step 2:
+The user goes to:
+- users.php
+
+Step 3:
+users.php:
+- starts the session
+- includes db.php
+- checks whether the user is logged in
+- reads all users from the database
+- shows them in a table
+
+Step 4:
+In that table, each user has an Edit link:
+- edit_user.php?id=some_user_id
+
+So the edit is triggered from:
+- users.php
+
+Step 5:
+When the user clicks Edit, the request goes to:
+- edit_user.php
+
+Step 6:
+edit_user.php:
+- starts the session
+- includes db.php
+- checks whether the user is logged in
+- gets the user id from the URL
+- loads that user's current data
+- shows the edit form
+
+Step 7:
+When the form is submitted, edit_user.php handles the update:
+- checks whether the username is already used by another user
+- updates username
+- updates password only if a new password is entered
+- hashes the new password before saving
+
+Step 8:
+After successful update:
+- the user is redirected to users.php
+- a success message is shown there
+
+Simple admin-style edit flow:
+welcome.php -> users.php -> edit_user.php -> users.php
+
+
+9. What Happens When a User Clicks Logout
+
+The logout button is on:
+- welcome.php
+
+When the user clicks Logout, the request goes to:
+- logout.php
+
+logout.php handles logout like this:
+- starts the session
+- runs session_unset() to remove session variables
+- runs session_destroy() to destroy the session
+- redirects the user to index.php
+
+After logout:
+- the user returns to the login page
+- a message is shown saying the user logged out successfully
+
+Simple logout flow:
+welcome.php -> logout.php -> index.php
+
+
+10. Overall Page Navigation / Full Project Flow
+
+Here is the full simple navigation of the system:
+
+Start:
+- index.php
+
+From index.php:
+- Login form submits to check.php
+- Register link goes to register.php
+
+Login path:
+- index.php -> check.php -> welcome.php
+
+Register path:
+- index.php -> register.php -> index.php
+
+After login on welcome.php:
+- Update My Details -> profile.php
+- View All Users -> users.php
+- Logout -> logout.php
+
+Profile update path:
+- welcome.php -> profile.php -> welcome.php
+
+User list edit path:
+- welcome.php -> users.php -> edit_user.php -> users.php
+
+User delete path:
+- welcome.php -> users.php -> delete_user.php -> users.php
+
+Logout path:
+- welcome.php -> logout.php -> index.php
+
+
+11. Important PHP Files and Their Jobs
+
+- index.php
+  Shows the login page and sends login data to check.php
+
+- check.php
+  Checks login details and creates session after successful login
+
+- register.php
+  Shows registration form and also saves new user data
+
+- welcome.php
+  Main page after login with links to update, view users, and logout
+
+- profile.php
+  Lets the logged-in user update their own username and password
+
+- users.php
+  Shows all users in a table with Edit and Delete links
+
+- edit_user.php
+  Updates a selected user from the user list
+
+- delete_user.php
+  Deletes a selected user from the user list
+
+- logout.php
+  Clears session and sends user back to login page
+
+- db.php
+  Connects the project to the MySQL database
+
+
+12. How Data Moves in This Project
+
+This project follows a simple pattern:
+
+Step 1:
+A user opens a page and fills a form.
+
+Step 2:
+That form sends data to a PHP file.
+
+Step 3:
+That PHP file reads the form data using $_POST or $_GET.
+
+Step 4:
+The file talks to the database using db.php.
+
+Step 5:
+After the work is finished, the file redirects the user to the next page using header("Location: ...").
+
+Step 6:
+Sessions keep the user logged in while moving from page to page.
+
+
+13. Beginner-Friendly Summary
+
+If you want to understand this project quickly, remember this:
+
+- index.php is the entry page
+- check.php handles login
+- register.php handles new account creation
+- welcome.php is the page after login
+- profile.php updates the current user's details
+- users.php shows all users
+- edit_user.php updates a selected user
+- logout.php ends the session and returns to login page
+- db.php connects everything to the database
+
+In short, the project works by:
+- taking input from forms
+- processing that input in PHP
+- saving or reading data from the database
+- using sessions to remember the logged-in user
+- redirecting the user to the correct next page
